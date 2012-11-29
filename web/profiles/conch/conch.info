@@ -1,0 +1,9 @@
+name = ST Conch
+description = ST Conch install fullsize package.
+version = VERSION
+core = 7.x
+dependencies[] = block
+dependencies[] = dblog
+files[] = conch.profile
+
+
