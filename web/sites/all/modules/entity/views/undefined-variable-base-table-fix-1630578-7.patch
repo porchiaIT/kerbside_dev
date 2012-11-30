@@ -1,0 +1,12 @@
+diff --git a/views/entity.views.inc b/views/entity.views.inc
+index 56b606b..23c6f6b 100644
+--- a/views/entity.views.inc
++++ b/views/entity.views.inc
+@@ -316,6 +316,7 @@ function entity_views_plugins() {
+     $base_tables = $data->data;
+   }
+   else {
++    $base_tables = array();
+     foreach (views_fetch_data() as $table => $data) {
+       if (!empty($data['table']['entity type']) && !empty($data['table']['base'])) {
+         $base_tables[] = $table;
