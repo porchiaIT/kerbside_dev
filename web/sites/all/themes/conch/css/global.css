@@ -1310,3 +1310,28 @@ ul.secondary a.active,
 ul.secondary a.active:hover,
 ul.secondary a.active:focus {
 }
+
+
+
+/****************************************************************************/
+.shift-button {
+  float: left;
+  margin: 10px;
+  width: 100px;
+  height: 183px;
+  border: solid green 1px;
+}
+
+#full-button {
+  background: url(../images/pieno.jpg) no-repeat;
+}
+
+#empty-button {
+  background: url(../images/vuoto.jpg) no-repeat;
+}
+
+#medium-button {
+  background: url(../images/poco.jpg) no-repeat;
+}
+
+

@@ -1,0 +1,156 @@
+<?php
+
+function mymodule_init() {
+  drupal_add_js(drupal_get_path('module', 'mymodule') .'/script.js');
+}
+
+function mymodule_menu() {
+    $items = array();
+
+    $items['my_module/hello_world'] = array(
+        'title' => 'Hello World Test',
+        'page callback' => 'say_hello_world',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+     );
+     $items['my_module/modify_node'] = array(
+        'title' => 'Modify node',
+        'page callback' => 'modify_node',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+     );
+     $items['my_module/reverse_geocode'] = array(
+        'title' => 'Modify node',
+        'page callback' => 'mymodule_reverse_geocode',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+     );
+
+    return $items;
+}
+
+function say_hello_world() {
+    
+  
+  echo 'Start here<br><br>';
+    
+  $result =  drupal_http_request('http://linux.porchia.it/kerbside/web/test-punti-raccolta/01');
+  $json_obj = json_decode($result->data);
+  $map_obj = json_decode($json_obj->nodes[0]->node->map);
+  $i = 0;
+  foreach ($map_obj->geometries as $geometry) {
+    // longitude
+    $longitude = number_format($geometry->coordinates[0],8,'.','');
+    // latidude
+    $latitude = number_format($geometry->coordinates[1],8,'.','');
+    $gmap_query = 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude . ',' . $longitude . '&sensor=false';
+    echo $i . ' Query: ' . $gmap_query . '<br>';
+    $result =  drupal_http_request($gmap_query);
+    $json_obj = json_decode($result->data);
+    echo $json_obj->results[0]->formatted_address . '<br>';
+    $i++; 
+  }
+}
+
+function modify_node() {
+    
+  foreach ($_GET as $key=>$value) {
+    echo "$key = " . urldecode($value) . "<br />\n";
+    switch ($key) {
+      case "q":
+        $q = urldecode($value);
+        break;
+      case "latitude":
+        $latitude = urldecode($value);
+        break;
+      case "longitude":
+        $longitude = urldecode($value);
+        break;
+      case "weight":
+        $weight = urldecode($value);
+        break;
+      case "nid":
+        $nid = urldecode($value);
+        break;
+      default:
+        break;
+    }
+  }
+  
+  if (!empty($nid)) { 
+    db_set_active('default');
+    $q = 'select max(delta) as m from field_data_field_gps_position where entity_id=' . $nid;
+    echo $q . "<br>";
+    $result = db_query($q);
+    $record = $result->fetchAssoc();
+    $max = $record['m'];
+    $max = $max + 1;
+
+    $top = number_format((floatval($latitude) + 0.0042),6,'.','');
+    $bottom = number_format((floatval($latitude) - 0.0042),6,'.','');
+    $left = number_format((floatval($longitude) - 0.0042),6,'.','');
+    $right = number_format((floatval($longitude) + 0.0042),6,'.','');
+    
+    $q = 'INSERT INTO  `kerbside_dev`.`field_data_field_gps_position` (
+      `entity_type` ,
+      `bundle` ,
+      `deleted` ,
+      `entity_id` ,
+      `revision_id` ,
+      `language` ,
+      `delta` ,
+      `field_gps_position_wkt` ,
+      `field_gps_position_geo_type` ,
+      `field_gps_position_lat` ,
+      `field_gps_position_lon` ,
+      `field_gps_position_left` ,
+      `field_gps_position_top` ,
+      `field_gps_position_right` ,
+      `field_gps_position_bottom` ,
+      `field_gps_position_srid` ,
+      `field_gps_position_accuracy` ,
+      `field_gps_position_source`
+      )
+      VALUES (
+      \'node\',  \'shift\',  \'0\',  \'' . $nid . '\',  \'' . $nid . '\',  \'und\',  \'' . $max . '\',  \'POINT (' . $longitude . ' ' . $latitude . ')\',  \'point\',  \'' . $latitude . '\',  \'' . $longitude . '\',  \'' . $left . '\',  \'' . $top . '\',  \'' . $right . '\',  \'' . $bottom . '\', NULL , NULL , NULL
+      )';
+    echo $q;
+    $result = db_query($q);
+  }
+  
+  
+}
+
+function mymodule_reverse_geocode() {
+    
+  foreach ($_GET as $key=>$value) {
+    //echo "$key = " . urldecode($value) . "<br />\n";
+    switch ($key) {
+      case "q":
+        $q = urldecode($value);
+        break;
+      case "latitude":
+        $latitude = urldecode($value);
+        break;
+      case "longitude":
+        $longitude = urldecode($value);
+        break;
+      case "weight":
+        $weight = urldecode($value);
+        break;
+      case "nid":
+        $nid = urldecode($value);
+        break;
+      default:
+        break;
+    }
+  }
+  
+  $gmap_query = 'http://maps.googleapis.com/maps/api/geocode/json?latlng=' . $latitude . ',' . $longitude . '&sensor=false';
+  //echo $i . ' Query: ' . $gmap_query . '<br>';
+  $result =  drupal_http_request($gmap_query);
+  $json_obj = json_decode($result->data);
+  echo $json_obj->results[0]->formatted_address . '<br>';
+  
+  
+}
