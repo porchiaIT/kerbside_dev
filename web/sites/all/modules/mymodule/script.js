@@ -4,17 +4,14 @@
 // Store our function as a property of Drupal.behaviors.
 Drupal.behaviors.myModuleSecureLink = {
   attach: function (context, settings) {
-    // Find all the secure links inside context that do not have our processed
-    // class.
-    $('#get-botton', context)
-      // Only process elements once.
-      .click(function () {
-        alert("Click!");
-        $(this).html(
-          "Latitude: "+document.getElementById('currentLat').innerHTML+"<br>"+
+    $('#full-button').click(function () {
+        $('#dashboard').html(
+          $('#dashboard').html()+
+          "Latitude: "+document.getElementById('currentLat').innerHTML+","+
           "Longitude: "+document.getElementById('currentLon').innerHTML+"<br>"
         );
       });
+  
   }
 };
 
@@ -26,8 +23,7 @@ Drupal.behaviors.myModuleMagic = {
 
 Drupal.behaviors.startAddress = {
   attach: function (context, settings) {
-    // Find all the secure links inside context that do not have our processed
-    // class.
+    
     setInterval(function(){ 
       $.ajax({
               type: "GET",
@@ -47,8 +43,7 @@ Drupal.behaviors.startAddress = {
 
 Drupal.behaviors.currentAddress = {
   attach: function (context, settings) {
-    // Find all the secure links inside context that do not have our processed
-    // class.
+    
     setInterval(function(){ 
       $.ajax({
               type: "GET",
